@@ -53,6 +53,6 @@ It uses plain ES.
   __Typos__ (not yet accessible): TypedText can simulate stray keypresses and misclicks. The final text will be the same, but mistakes will appear in the typing process (an be corrected).
 
 ## Other:
-TypedText can also be applied more specifically by passing a selector to `runTT()`. This function uses `querySelectorAll()` to find the desired elements, so be sure to prepend your class and id names with the appropriate prefix ('.class', '#id'). Additionally, you may choose to use the TypedText class directly. Check out [the source code](./script.js) for more information.
+TypedText can also be applied more specifically by passing a selector to `runTT()`. This function uses `querySelectorAll()` to find the desired elements, so be sure to prepend your class and id names with the appropriate prefix ('.class', '#id'). Additionally, you may choose to use the TypedText class directly. Check out [the source code](./TypedText.js) for more information.
 
 Clone the repository and open index.html for a quick demo.
