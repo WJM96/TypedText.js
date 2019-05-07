@@ -11,7 +11,7 @@ It uses plain ES.
 ## Usage:
   1: Link the script anywhere in your page.
   ```html
-  <script type="text/javascript" src="script.js"></script>
+  <script type="text/javascript" src="TypedText.js"></script>
   ```
   2: Mark the elements you want to animate with the `TT` class, and the `TT-to` attribute.
   ```html
