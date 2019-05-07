@@ -1,93 +1,163 @@
 class TypedText {
+
+  /**
+   * constructor - constructs a new TypedText object for a given element.
+   *
+   * @param  {string\|object} elem DOM element to apply the effect to.
+   * @return {void}
+   */
   constructor(elem) {
+    if (typeof elem === 'string') {
+      elem = document.querySelector(elem)
+    }
+
+    if (elem === null) {
+      throw 'TypedText has recieved a null element!'
+    }
+
     this.elem = elem
     this.loadSettings()
-    if(this.settings.to === null){
-      throw "All TypedText element require a TT-to attribute!"
-    }
-    this.generateChangeMap()
-    this.update = this.update.bind(this)
-
-    //time between keystrokes
-    this.interval = this.settings.duration / this.changeMap.length
-
-    setTimeout(this.update, this.settings.delay);
+    this.changeMap = TypedText.generateChangeMap(this.elem.textContent, this.settings.to)
   }
 
+  /**
+   * loadSettings - Loads the various element attributes into this.settings
+   *
+   * @return {void}
+   */
   loadSettings() {
     this.settings = {
-      // The text that it's being changed into.
+      // Text that it's being changed into.
       to: this.elem.getAttribute('TT-to') || null,
-      // How long to wait to begin the animation
+      // Time before beginning the animation
       delay: parseInt(this.elem.getAttribute('TT-delay-ms')) || 0,
-      // How long the typing animation lasts
-      duration: parseInt(this.elem.getAttribute('TT-duration-ms'))
-        || 1000,
+      // Time between "keystrokes"
+      interval: parseInt(this.elem.getAttribute('TT-interval-ms'))
+        || 60,
+    }
+
+    if (this.settings.to === null){
+      throw "All TypedText elements require a TT-to attribute to work"
     }
   }
 
-  addTypo() {
+  /**
+   * @static addTypo - Adds a typo to a changeMap
+   *
+   * @param  {string[]} changeMap the changemap doomed to recieve typos
+   * @return {void}
+   */
+  static addTypo(changeMap) {
     let typoLength = Math.floor(Math.random() * 2) + 1
     const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
-    // const letters = '***'
+
     for (let i = 0; i < typoLength; i++) {
       let rand = Math.floor(Math.random() * letters.length)
 
-      this.changeMap.push(letters[rand])
+      changeMap.push(letters[rand])
     }
+
+    // Typos should always be erased.
     for (let i = 0; i < typoLength; i++) {
-      this.changeMap.push('\b')
+      changeMap.push('\b')
     }
   }
 
-  generateChangeMap() {
-    this.changeMap = []
 
-    let from = this.elem.textContent.trimStart()
-    let to = this.settings.to.trimStart()
+  /**
+   * @static Generates a list of actions (changeMap) needed to transform from one string to another.
+   *  a changeMap is essentially just a character array with backspaces (\b)
+   *
+   * @param {string} from The starting string
+   * @param {string} to The starting string
+   * @return {string[]} List of "actions" (characters/backspaces)
+   *
+   */
+  static generateChangeMap(from, to, useTypos = false) {
+    let changeMap = []
 
-    // How many characters can be left alone at the start of the string
+    from = from.trimStart()
+    to = to.trimStart()
+
+    // How many characters can be left alone at the start of the 'from' string
     const maxSharedLength = Math.min(from.length, to.length)
     let sharedLength = 0
     for (; sharedLength <= maxSharedLength; sharedLength++) {
-      if(from[sharedLength] != to[sharedLength]) {
+      if (from[sharedLength] != to[sharedLength]) {
         break
       }
     }
 
-    // the string needs to be erased, start by adding the required number of backspaces.
+    // Parts of the 'from' string may need to be erased.
     let chopLength = Math.max(from.length - sharedLength, 0);
 
     for (let i = 0; i < chopLength; i++) {
-      this.changeMap.push('\b')
+      changeMap.push('\b')
     }
 
-    // push the things that need to be appended to the changemap
+    // Push the things that need to be appended to the changemap
     for (let i = sharedLength; i < to.length; i++) {
-      this.changeMap.push(to[i])
-      if(Math.random() > 0.95) {
-        this.addTypo()
+      changeMap.push(to[i])
+      if (useTypos === true && Math.random() > 0.95) {
+        TypedText.addTypo(changeMap)
       }
     }
-    this.changeMap.reverse()
+
+    // It's better to reverse here, so we can just use pop() in TypedText.run()
+    changeMap.reverse()
+
+    return changeMap
   }
 
-  update() {
-    let action = this.changeMap.pop()
-    if(action == '\b') {
-      this.elem.textContent = this.elem.textContent.slice(0, -1)
-    } else {
-      this.elem.textContent += (action)
-    }
-    if(this.changeMap.length > 0) {
-      setTimeout(this.update, this.interval);
-    }
+
+  /**
+   * @static sleep - Utility function to wait for a given time in an async function.
+   *
+   * @param  {number} ms time in milliseconds to wait before continuing execution
+   * @return {void}
+   */
+  static sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms))
   }
 
+
+  /**
+   * @async run - Play the TypedText animation on this element.
+   *
+   * @return {void}
+   */
+  async run() {
+    await TypedText.sleep(this.settings.delay)
+
+    while (this.changeMap.length > 0) {
+      let action = this.changeMap.pop()
+
+      if (action == '\b') {
+        this.elem.textContent = this.elem.textContent.slice(0, -1)
+      } else {
+        this.elem.textContent += action
+      }
+
+      await TypedText.sleep(this.settings.interval)
+    }
+  }
 }
 
-const ttxts = document.querySelectorAll('.TT')
-var TypedTexts = []
-for (ttxt of ttxts) {
-  TypedTexts.push( new TypedText(ttxt) )
+
+/**
+ * runTT - run
+ *
+ * @param  {string} selector = '.TT' selector for all TypedText elements
+ * @return {void}
+ */
+function runTT(selector = '.TT') {
+  const ttxts = document.querySelectorAll(selector)
+  var typedTexts = []
+  for (ttxt of ttxts) {
+    typedTexts.push( new TypedText(ttxt) )
+  }
+  for (tt of typedTexts) {
+    tt.run()
+  }
+
 }
