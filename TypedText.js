@@ -28,16 +28,16 @@ class TypedText {
   loadSettings() {
     this.settings = {
       // Text that it's being changed into.
-      to: this.elem.getAttribute('TT-to') || null,
+      to: this.elem.getAttribute('data-tt-to') || null,
       // Time before beginning the animation
-      delay: parseInt(this.elem.getAttribute('TT-delay-ms')) || 0,
+      delay: parseInt(this.elem.getAttribute('data-tt-delay-ms')) || 0,
       // Time between "keystrokes"
-      interval: parseInt(this.elem.getAttribute('TT-interval-ms'))
+      interval: parseInt(this.elem.getAttribute('data-tt-interval-ms'))
         || 60,
     }
 
     if (this.settings.to === null){
-      throw "All TypedText elements require a TT-to attribute to work"
+      throw "All TypedText elements require a data-tt-to attribute to work"
     }
   }
 

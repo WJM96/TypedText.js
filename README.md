@@ -2,7 +2,7 @@
 ---
 TypedText.js is a JavaScript library to create dynamic text with a typing effect.
 
-Animated text elements will transition from the inner content to the content defined in a custom attribute. Animation delay and keystroke interval are customizable via attributes as well.
+Animated text elements will transition from the inner content to the content defined in a custom attribute. Animation delay and keystroke interval are customizable via data attributes as well.
 
 It uses plain ES.
 
@@ -13,11 +13,11 @@ It uses plain ES.
   ```html
   <script type="text/javascript" src="TypedText.js"></script>
   ```
-  2: Mark the elements you want to animate with the `TT` class, and the `TT-to` attribute.
+  2: Mark the elements you want to animate with the `TT` class, and the `data-tt-to` attribute.
   ```html
   <p
     class='TT'
-    TT-to="This is some awesome text.">
+    data-tt-to="This is some awesome text.">
     This is some boring text.
   </p>
   ```
@@ -29,22 +29,22 @@ It uses plain ES.
   </script>
   ```
 ## Features:
-  __Delay__: By default, TypedText.js executes animations immediately. You can add the `TT-delay-ms` attribute to force the script to wait a set number of milliseconds before running on that particular element. Ex:
+  __Delay__: By default, TypedText.js executes animations immediately. You can add the `data-tt-delay-ms` attribute to force the script to wait a set number of milliseconds before running on that particular element. Ex:
   ```html
   <p
     class='TT'
-    TT-to="Oh boy that took a while"
-    TT-delay-ms="3000">
+    data-tt-to="Oh boy that took a while"
+    data-tt-delay-ms="3000">
     I'll start animating in 3 seconds!
   </p>
   ```
 
-  __Interval__: The interval between "keystrokes" is set with `TT-interval-ms` like so (in milliseconds):
+  __Interval__: The interval between "keystrokes" is set with `data-tt-interval-ms` like so (in milliseconds):
   ```html
   <p
     class='TT'
-    TT-to="I'm the fastest text in the west"
-    TT-interval-ms="30">
+    data-tt-to="I'm the fastest text in the west"
+    data-tt-interval-ms="30">
     I'm the...
   </p>
   ```
